@@ -1,0 +1,15 @@
+inputSet:
+  name: pipelineChain2InputSet
+  identifier: pipelineChain2InputSet
+  orgIdentifier: CSE_Labs
+  projectIdentifier: CSE_Lab_Project
+  pipeline:
+    identifier: pipelineChain2
+    stages:
+      - stage:
+          identifier: run
+          type: Custom
+          variables:
+            - name: test
+              type: String
+              value: hello world
