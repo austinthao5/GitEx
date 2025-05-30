@@ -34,3 +34,28 @@ pipeline:
             description: ""
             required: false
             value: <+input>
+    - stage:
+        name: test
+        identifier: test
+        tags: {}
+        template:
+          templateRef: GenesisDeploy
+          versionLabel: "1"
+          templateInputs:
+            type: Deployment
+            spec:
+              service:
+                serviceRef: <+input>
+                serviceInputs: <+input>
+              environment:
+                environmentRef: <+input>
+                infrastructureDefinitions: <+input>
+            variables:
+              - name: version_fallback
+                type: String
+                value: <+input>
+              - name: jira_id
+                type: String
+                value: <+input>
+            when:
+              condition: <+input>
