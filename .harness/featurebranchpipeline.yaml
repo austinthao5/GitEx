@@ -35,12 +35,13 @@ pipeline:
             required: false
             value: <+input>
     - stage:
-        name: test
-        identifier: test
+        name: a
+        identifier: a
         tags: {}
         template:
           templateRef: GenesisDeploy
-          versionLabel: "1"
+          versionLabel: "2"
+          gitBranch: branch1
           templateInputs:
             type: Deployment
             spec:
@@ -49,8 +50,9 @@ pipeline:
                 serviceInputs: <+input>
               environment:
                 environmentRef: <+input>
-                infrastructureDefinitions: <+input>
                 environmentInputs: <+input>
+                serviceOverrideInputs: <+input>
+                infrastructureDefinitions: <+input>
             variables:
               - name: version_fallback
                 type: String
