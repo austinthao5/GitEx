@@ -1,0 +1,38 @@
+template:
+  name: testGitExTemplate
+  identifier: testGitExTemplate
+  versionLabel: "1"
+  type: Pipeline
+  projectIdentifier: CSE_Lab_Project
+  orgIdentifier: CSE_Labs
+  tags: {}
+  spec:
+    stages:
+      - stage:
+          name: a
+          identifier: a
+          tags: {}
+          template:
+            templateRef: GenesisDeploy
+            versionLabel: "2"
+            gitBranch: branch1
+            templateInputs:
+              type: Deployment
+              spec:
+                service:
+                  serviceRef: <+input>
+                  serviceInputs: <+input>
+                environment:
+                  environmentRef: <+input>
+                  environmentInputs: <+input>
+                  serviceOverrideInputs: <+input>
+                  infrastructureDefinitions: <+input>
+              variables:
+                - name: version_fallback
+                  type: String
+                  value: <+input>
+                - name: jira_id
+                  type: String
+                  value: <+input>
+              when:
+                condition: <+input>
