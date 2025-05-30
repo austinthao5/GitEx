@@ -1,0 +1,35 @@
+pipeline:
+  name: GitExTemplateTest
+  identifier: GitExTemplateTest
+  tags: {}
+  template:
+    templateRef: testGitExTemplate
+    versionLabel: "1"
+    gitBranch: master-copy
+    templateInputs:
+      stages:
+        - stage:
+            identifier: a
+            template:
+              templateInputs:
+                type: Deployment
+                spec:
+                  service:
+                    serviceRef: <+input>
+                    serviceInputs: <+input>
+                  environment:
+                    environmentRef: <+input>
+                    environmentInputs: <+input>
+                    serviceOverrideInputs: <+input>
+                    infrastructureDefinitions: <+input>
+                variables:
+                  - name: version_fallback
+                    type: String
+                    value: <+input>
+                  - name: jira_id
+                    type: String
+                    value: <+input>
+                when:
+                  condition: <+input>
+  projectIdentifier: CSE_Lab_Project
+  orgIdentifier: CSE_Labs
