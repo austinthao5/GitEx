@@ -50,6 +50,7 @@ pipeline:
               environment:
                 environmentRef: <+input>
                 infrastructureDefinitions: <+input>
+                environmentInputs: <+input>
             variables:
               - name: version_fallback
                 type: String
