@@ -49,10 +49,9 @@ pipeline:
                 serviceRef: <+input>
                 serviceInputs: <+input>
               environment:
-                environmentRef: <+input>
-                environmentInputs: <+input>
-                serviceOverrideInputs: <+input>
-                infrastructureDefinitions: <+input>
+                environmentRef: csegcpclusternew
+                infrastructureDefinitions:
+                  - identifier: customDeploy
             variables:
               - name: version_fallback
                 type: String
