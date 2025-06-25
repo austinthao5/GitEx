@@ -1,0 +1,288 @@
+pipeline:
+  projectIdentifier: DX_API_Economy_Tooling
+  orgIdentifier: Architecture_Engineering
+  properties:
+    ci:
+      codebase:
+        build: <+input>
+        connectorRef: account.Github
+        repoName: kw-utils
+  stages:
+    - stage:
+        identifier: build
+        name: Build
+        spec:
+          caching:
+            enabled: false
+            paths: []
+          cloneCodebase: true
+          execution:
+            steps:
+              - step:
+                  name: Setup Common Variables
+                  identifier: vars
+                  template:
+                    templateRef: org.Setup_Common_Variables
+                    versionLabel: v0.0.1
+                    gitBranch: main
+              - step:
+                  type: Run
+                  name: Validate Commit Message
+                  identifier: Validate_Commit
+                  template:
+                    templateRef: org.Validate_Commit
+                    versionLabel: v0.0.1
+              - step:
+                  name: Generate Version
+                  identifier: Generate_Version
+                  template:
+                    templateRef: org.Generate_Version
+                    versionLabel: v0.0.1
+              - step:
+                  type: Run
+                  name: Setup Variables
+                  identifier: Setup_Vars
+                  spec:
+                    shell: Bash
+                    command: "# add your custom environment variables here"
+              - step:
+                  name: GitHub Notice Initialization
+                  identifier: GitHub_Notice
+                  template:
+                    templateRef: org.GitHub_Notice_Initialization
+                    versionLabel: v0.0.1
+                    gitBranch: main
+                    templateInputs:
+                      type: Run
+                      spec:
+                        envVariables:
+                          CONTEXTS: docker_build_dependencies,docker_build,docker_test
+                          IS_CONTAINER: <+input>.default(true)
+              - parallel:
+                  - stepGroup:
+                      name: Build and Test
+                      identifier: build_and_test
+                      steps:
+                        - stepGroup:
+                            name: Dependencies
+                            identifier: Dependencies
+                            steps:
+                              - step:
+                                  type: BuildAndPushGAR
+                                  name: docker build dependencies
+                                  identifier: docker_build_dependencies
+                                  spec:
+                                    connectorRef: account.GCR
+                                    host: gcr.io
+                                    projectID: kw-image-repo
+                                    imageName: kw-utils
+                                    tags:
+                                      - dependencies
+                                    caching: true
+                                    target: builder
+                                    baseImageConnectorRefs:
+                                      - account.DockerhubCache
+                                    envDockerSecrets:
+                                      NPM_TOKEN: <+secrets.getValue("org.NPM_TOKEN")>
+                                      GITHUB_TOKEN: <+secrets.getValue("org.GITHUB_CI_TOKEN")>
+                              - step:
+                                  name: GitHub Notice Dependencies
+                                  identifier: GitHub_Notice_Dependencies
+                                  template:
+                                    templateRef: org.GitHub_Notice
+                                    versionLabel: v0.0.1
+                                    gitBranch: main
+                                    templateInputs:
+                                      type: Run
+                                      spec:
+                                        envVariables:
+                                          STEP_ID: execution.steps.build_and_test.steps.Dependencies.steps.docker_build_dependencies
+                                          CONTEXT: docker_build_dependencies
+                        - parallel:
+                            - stepGroup:
+                                name: Build
+                                identifier: Build
+                                steps:
+                                  - step:
+                                      type: BuildAndPushGAR
+                                      name: docker build
+                                      identifier: docker_build
+                                      spec:
+                                        connectorRef: account.GCR
+                                        host: gcr.io
+                                        projectID: kw-image-repo
+                                        imageName: kw-utils
+                                        tags:
+                                          - <+execution.steps.vars.output.outputVariables.COMMIT>
+                                        caching: true
+                                        baseImageConnectorRefs:
+                                          - account.DockerhubCache
+                                        envDockerSecrets:
+                                          NPM_TOKEN: <+secrets.getValue("org.NPM_TOKEN")>
+                                          GITHUB_TOKEN: <+secrets.getValue("org.GITHUB_CI_TOKEN")>
+                                  - step:
+                                      name: GitHub Notice
+                                      identifier: GitHub_Notice_build
+                                      template:
+                                        templateRef: org.GitHub_Notice
+                                        versionLabel: v0.0.1
+                                        gitBranch: main
+                                        templateInputs:
+                                          type: Run
+                                          spec:
+                                            envVariables:
+                                              STEP_ID: execution.steps.build_and_test.steps.Build.steps.docker_build
+                                              CONTEXT: docker_build
+                            - stepGroup:
+                                name: Unit Tests
+                                identifier: Test
+                                steps:
+                                  - step:
+                                      type: BuildAndPushGAR
+                                      name: docker test
+                                      identifier: docker_test
+                                      spec:
+                                        connectorRef: account.GCR
+                                        host: gcr.io
+                                        projectID: kw-image-repo
+                                        imageName: kw-utils
+                                        tags:
+                                          - tests
+                                        caching: true
+                                        target: tests
+                                        baseImageConnectorRefs:
+                                          - account.DockerhubCache
+                                        envDockerSecrets:
+                                          NPM_TOKEN: <+secrets.getValue("org.NPM_TOKEN")>
+                                          GITHUB_TOKEN: <+secrets.getValue("org.GITHUB_CI_TOKEN")>
+                                  - step:
+                                      type: Run
+                                      name: Upload Unit Test Results
+                                      identifier: upload_test_results
+                                      spec:
+                                        connectorRef: account.GCR
+                                        image: gcr.io/kw-image-repo/kw-utils:tests
+                                        shell: Bash
+                                        command: cp -r /app/harness/coverage /harness/coverage
+                                        reports:
+                                          type: JUnit
+                                          spec:
+                                            paths:
+                                              - coverage/**.xml
+                                  - step:
+                                      name: GitHub Notice Unit Tests
+                                      identifier: GitHub_Notice_Tests
+                                      template:
+                                        templateRef: org.GitHub_Notice
+                                        versionLabel: v0.0.1
+                                        gitBranch: main
+                                        templateInputs:
+                                          type: Run
+                                          spec:
+                                            envVariables:
+                                              STEP_ID: execution.steps.build_and_test.steps.Test.steps.docker_test
+                                              CONTEXT: docker_test
+                        - stepGroup:
+                            name: Aquatrivy
+                            identifier: Aquatrivy
+                            template:
+                              templateRef: org.aquatrivy
+                              versionLabel: v0.0.1
+                              gitBranch: main
+                              templateInputs:
+                                variables:
+                                  - name: OUTER_STEP_GROUP
+                                    type: String
+                                    value: build_and_test
+                  - stepGroup:
+                      name: Gitleaks
+                      identifier: gitleaks
+                      template:
+                        templateRef: org.gitleaks
+                        versionLabel: v0.0.1
+                        gitBranch: main
+                  - stepGroup:
+                      name: Snyk
+                      identifier: Snyk_Run_Template
+                      template:
+                        templateRef: org.Snyk_Template
+                        versionLabel: v0.0.1
+                        gitBranch: main
+              - step:
+                  name: Push Docker and Github Tags
+                  identifier: docker_push
+                  template:
+                    templateRef: org.docker_push
+                    versionLabel: v0.0.1
+              - step:
+                  name: GitHub Notice Push Docker Image
+                  identifier: GitHub_Notice_Docker_Push
+                  template:
+                    templateRef: org.GitHub_Notice
+                    versionLabel: v0.0.1
+                    gitBranch: main
+                    templateInputs:
+                      type: Run
+                      spec:
+                        envVariables:
+                          STEP_ID: execution.steps.docker_push
+                          CONTEXT: docker_push
+              - step:
+                  name: GitHub Tag and Release
+                  identifier: autoincrement_tag
+                  template:
+                    templateRef: org.autoincrement_tag
+                    versionLabel: v0.0.1
+                    gitBranch: main
+                  when:
+                    stageStatus: Success
+              - step:
+                  name: GitHub Notice Tag and Release
+                  identifier: GitHub_Notice_Autoincrement_Tag
+                  template:
+                    templateRef: org.GitHub_Notice
+                    versionLabel: v0.0.1
+                    gitBranch: main
+                    templateInputs:
+                      type: Run
+                      spec:
+                        envVariables:
+                          STEP_ID: execution.steps.autoincrement_tag
+                          CONTEXT: autoincrement_tag
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec:
+              size: xlarge
+          buildIntelligence:
+            enabled: false
+        type: CI
+        description: ""
+        variables:
+          - name: PLUGIN_DRY_RUN
+            type: String
+            description: ""
+            required: false
+            value: "true"
+          - name: PLUGIN_BUILDX_LOAD
+            type: String
+            description: ""
+            required: false
+            value: "true"
+  tags: {}
+  variables:
+    - name: TAG_OVERRIDE_VERSION
+      type: String
+      description: ""
+      required: false
+      value: ""
+    - name: MAJOR_VERSION
+      type: String
+      description: ""
+      required: true
+      value: "8"
+  identifier: kwutils_build
+  name: kw-utils build
+  description: In Progress build pipeline
