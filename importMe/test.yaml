@@ -1,0 +1,301 @@
+pipeline:
+  name: wdpr-dx-api-portal-webapi
+  identifier: wdprdxapiportalwebapi
+  projectIdentifier: DX_API_Economy_Tooling
+  orgIdentifier: Architecture_Engineering
+  tags: {}
+  template:
+    templateRef: account.NPM_Jenkins_Pipeline
+    gitBranch: main
+    templateInputs:
+      stages:
+        - stage:
+            identifier: Build
+            template:
+              templateInputs:
+                type: CI
+                variables:
+                  - name: EXECUTE_SONAR
+                    type: String
+                    value: "false"
+                  - name: SONAR_PROJECT_NAME
+                    type: String
+                    value: nodejs
+                  - name: SONAR_URL
+                    type: String
+                    default: https://sonar.cicd.wdprapps.disney.com
+                    value: https://sonar.cicd.wdprapps.disney.com
+                  - name: SONAR_TOKEN
+                    type: String
+                    value: <+secrets.getValue("account.SONAR_TOKEN")>
+                  - name: GITHUB_TOKEN
+                    type: String
+                    value: <+secrets.getValue("disneygithubpat")>
+                  - name: GITHUB_RELEASE
+                    type: String
+                    value: "false"
+                  - name: SNYK_ORG
+                    type: String
+                    value: dx-harness-monitoring
+                  - name: IGNORE_SNYK_FAILURE
+                    type: String
+                    value: "true"
+                  - name: NEXUS_TOKEN
+                    type: String
+                    value: <+secrets.getValue("NEXUS_TOKEN")>
+                  - name: INSTALL_ARGS
+                    type: String
+                    value: ""
+                  - name: BUILD_ARGS
+                    type: String
+                    value: ""
+                  - name: SNYK_DETECTION_DEPTH
+                    type: String
+                    default: "10"
+                    value: "10"
+                  - name: AUTO_VERSIONING
+                    type: String
+                    value: <+input>.default(true).allowedValues(true,false)
+        - parallel:
+            - stage:
+                identifier: Package
+                template:
+                  templateInputs:
+                    type: CI
+                    variables:
+                      - name: PUBLISH
+                        type: String
+                        value: "false"
+                      - name: DOCKERFILE
+                        type: String
+                        value: <+input>.default(Dockerfile)
+                      - name: ECR_REPO_NAME
+                        type: String
+                        value: twdc-api-economy/wdpr-dx-api-portal-webapi
+                      - name: BUILD_OPTIONS
+                        type: String
+                        value: "--label source=git --label repo=git@github.disney.com:twdc-api-economy/wdpr-dx-api-portal-webapi.git"
+                      - name: REGIONS
+                        type: String
+                        value: <+input>.default(us-east-1,us-west-2,eu-west-1)
+            - stage:
+                identifier: Publish
+                template:
+                  templateInputs:
+                    type: CI
+                    variables:
+                      - name: PUBLISH
+                        type: String
+                        value: "false"
+            - stage:
+                identifier: Publish_S3
+                template:
+                  templateInputs:
+                    type: CI
+                    variables:
+                      - name: S3_COPY_CMDS
+                        type: String
+                        value: NA
+                      - name: PUBLISH
+                        type: String
+                        value: "false"
+        - stage:
+            identifier: Deploy
+            template:
+              templateInputs:
+                type: Custom
+                spec:
+                  execution:
+                    steps:
+                      - stepGroup:
+                          identifier: CHG_Management
+                          template:
+                            templateInputs:
+                              variables:
+                                - name: CHG_TYPE
+                                  type: String
+                                  value: <+input>.default(Comprehensive).allowedValues(Comprehensive,Emergency)
+                                - name: CREATE_PREDEPLOYMENT_CTASK
+                                  type: String
+                                  value: <+input>.default(false).allowedValues(true,false)
+                                  default: "false"
+                                - name: RELATED_JIRA_PROJECT
+                                  type: String
+                                  value: <+input>.default(None)
+                                  default: None
+                                - name: RELATED_JIRA_RELEASE
+                                  type: String
+                                  value: <+input>.default(None)
+                                  default: None
+                                - name: RELATED_CHG_LIST
+                                  type: String
+                                  value: <+input>.default(None)
+                                  default: None
+                                - name: RELATED_INC_LIST
+                                  type: String
+                                  value: <+input>.default(None)
+                                  default: None
+                                - name: RELATED_RITM_LIST
+                                  type: String
+                                  value: <+input>.default(None)
+                                  default: None
+                      - step:
+                          identifier: Deploy
+                          template:
+                            templateInputs:
+                              type: Container
+                              spec:
+                                envVariables:
+                                  RUNDECK_ID: ""
+                variables:
+                  - name: PARAMS
+                    type: String
+                    value: NA
+                  - name: ENVIRONMENT
+                    type: String
+                    value: NA
+                  - name: REGION
+                    type: String
+                    value: NA
+                  - name: SERVICE_NAME
+                    type: String
+                    value: NA
+                  - name: SKIP_CANARY
+                    type: String
+                    value: NA
+                  - name: FUNCTION
+                    type: String
+                    value: NA
+                  - name: ACCOUNT
+                    type: String
+                    value: NA
+                  - name: DEPLOY
+                    type: String
+                    value: "false"
+                  - name: SITE_ID
+                    type: String
+                    default: None
+                    value: <+input>.default(None).allowedValues(None,WDW,DLR,DLP,HKDL)
+                  - name: ENABLE_CHG_MANAGEMENT
+                    type: String
+                    default: "false"
+                    value: <+input>.default(false).allowedValues(true,false)
+                  - name: STANDALONE_CHG_MANAGEMENT
+                    type: String
+                    default: "false"
+                    value: <+input>.default(false).allowedValues(true,false)
+                  - name: RUNDECK_ID
+                    type: String
+                    default: NA
+                    value: <+input>.default(NA)
+        - stage:
+            identifier: AWX_Deploy
+            template:
+              templateInputs:
+                type: Custom
+                variables:
+                  - name: AWX_DEPLOY
+                    type: String
+                    value: <+input>.default(false).allowedValues(true,false)
+                  - name: PARAMS
+                    type: String
+                    value: <+input>
+                  - name: TEMPLATE_ID
+                    type: String
+                    value: <+input>
+                  - name: ENVIRONMENT
+                    type: String
+                    value: <+input>
+        - stage:
+            identifier: Send_Notifications
+            template:
+              templateInputs:
+                type: Custom
+                spec:
+                  execution:
+                    steps:
+                      - stepGroup:
+                          identifier: Send_Notifications
+                          template:
+                            templateInputs:
+                              steps:
+                                - parallel:
+                                    - step:
+                                        identifier: Send_Slack
+                                        template:
+                                          templateInputs:
+                                            type: ShellScript
+                                            spec:
+                                              environmentVariables:
+                                                - name: slackChannel
+                                                  type: String
+                                                  value: harness-notifications
+                                    - step:
+                                        identifier: Send_Teams
+                                        template:
+                                          templateInputs:
+                                            type: ShellScript
+                                            spec:
+                                              environmentVariables:
+                                                - name: teamsWebhooks
+                                                  type: String
+                                                  value: <+input>
+                variables:
+                  - name: Email_Notification_flag
+                    type: String
+                    value: <+input>.default(false).allowedValues(true,false)
+                  - name: Email_To
+                    type: String
+                    value: <+input>
+                  - name: Email_CC
+                    type: String
+                    value: <+input>
+                  - name: Email_Subject
+                    type: String
+                    value: <+input>
+                  - name: Email_Body
+                    type: String
+                    value: <+input>
+                  - name: NOTIFY_FAILED
+                    type: String
+                    value: <+input>.default(true).allowedValues(true,false)
+                  - name: NOTIFY_SUCCEEDED
+                    type: String
+                    value: <+input>.default(false).allowedValues(true,false)
+                  - name: NOTIFY_BACK_TO_NORMAL
+                    type: String
+                    value: <+input>.default(true).allowedValues(true,false)
+                  - name: NOTIFY_IGNORE_FAILED
+                    type: String
+                    value: <+input>.default(false).allowedValues(true,false)
+                  - name: NOTIFY_ABORTED
+                    type: String
+                    value: <+input>.default(true).allowedValues(true,false)
+      variables:
+        - name: BAPP_ID
+          type: String
+          value: BAPP0249888
+        - name: NODE_VERSION
+          type: String
+          value: "20.11"
+        - name: PROJECT_ROOT
+          type: String
+          value: <+input>.default(.)
+        - name: APP_NAME
+          type: String
+          value: wdpr-dx-api-portal-webapi
+        - name: NEXUS_TOKEN
+          type: String
+          value: <+secrets.getValue("NEXUS_TOKEN")>
+        - name: PIPELINE_TYPE
+          type: String
+          value: application
+        - name: PUBLISH_DIR
+          type: String
+          value: ""
+      properties:
+        ci:
+          codebase:
+            connectorRef: disneygithubconnector
+            repoName: twdc-api-economy/wdpr-dx-api-portal-webapi
+            build: <+input>
