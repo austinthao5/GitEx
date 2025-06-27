@@ -1,0 +1,35 @@
+inputSet:
+  name: deployInputsInputSet
+  identifier: deployInputsInputSet
+  orgIdentifier: CSE_Labs
+  projectIdentifier: CSE_Lab_Project
+  pipeline:
+    identifier: deployInputsPipeline
+    template:
+      templateInputs:
+        stages:
+          - stage:
+              identifier: deploy
+              template:
+                templateInputs:
+                  type: Deployment
+                  spec:
+                    environment:
+                      environmentRef: csegcpclusternew
+                      infrastructureDefinitions:
+                        - identifier: testMe1
+                    service:
+                      serviceRef: Deploy_K8s
+                      serviceInputs:
+                        serviceDefinition:
+                          type: Kubernetes
+                          spec:
+                            artifacts:
+                              primary:
+                                primaryArtifactRef: nginx
+                                sources:
+                                  - identifier: nginx
+                                    type: DockerRegistry
+                                    spec:
+                                      imagePath: library/nginx
+                                      tag: latest
