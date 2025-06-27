@@ -1,0 +1,28 @@
+template:
+  name: deployInputs
+  identifier: deployInputs
+  versionLabel: "1"
+  type: Pipeline
+  projectIdentifier: CSE_Lab_Project
+  orgIdentifier: CSE_Labs
+  tags: {}
+  spec:
+    stages:
+      - stage:
+          name: deploy
+          identifier: deploy
+          tags: {}
+          template:
+            templateRef: DeployInputs
+            versionLabel: "1"
+            templateInputs:
+              type: Deployment
+              spec:
+                environment:
+                  environmentRef: <+input>
+                  environmentInputs: <+input>
+                  serviceOverrideInputs: <+input>
+                  infrastructureDefinitions: <+input>
+                service:
+                  serviceRef: <+input>
+                  serviceInputs: <+input>
