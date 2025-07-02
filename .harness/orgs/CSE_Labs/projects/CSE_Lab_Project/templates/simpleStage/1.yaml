@@ -17,4 +17,4 @@ template:
               template:
                 templateRef: simpleStep
                 versionLabel: "1"
-                gitBranch: master-copy
+                gitBranch: feature/test-variable
