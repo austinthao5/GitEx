@@ -1,0 +1,20 @@
+template:
+  name: simpleStage
+  identifier: simpleStage
+  versionLabel: "1"
+  type: Stage
+  projectIdentifier: CSE_Lab_Project
+  orgIdentifier: CSE_Labs
+  tags: {}
+  spec:
+    type: Custom
+    spec:
+      execution:
+        steps:
+          - step:
+              name: simpleStep
+              identifier: simpleStep
+              template:
+                templateRef: simpleStep
+                versionLabel: "1"
+                gitBranch: master-copy

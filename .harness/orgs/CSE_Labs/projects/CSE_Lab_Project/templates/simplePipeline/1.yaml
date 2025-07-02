@@ -1,0 +1,17 @@
+template:
+  name: simplePipeline
+  identifier: simplePipeline
+  versionLabel: "1"
+  type: Pipeline
+  projectIdentifier: CSE_Lab_Project
+  orgIdentifier: CSE_Labs
+  tags: {}
+  spec:
+    stages:
+      - stage:
+          name: simpleStage
+          identifier: simpleStage
+          tags: {}
+          template:
+            templateRef: simpleStage
+            versionLabel: "1"
