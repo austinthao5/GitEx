@@ -16,6 +16,8 @@ template:
       source:
         type: Inline
         spec:
-          script: echo "hello"
+          script: |-
+            echo "hello"
+            echo "Pulled from master-copy"
       environmentVariables: []
       outputVariables: []
