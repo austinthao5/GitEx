@@ -35,3 +35,9 @@ template:
                 image: library/nginx
                 shell: Sh
                 command: echo "Pulled from feature/test-variable branch"
+          - step:
+              name: Run_2
+              identifier: Run_2
+              template:
+                templateRef: simpleRunStepTemplate
+                versionLabel: "1"
