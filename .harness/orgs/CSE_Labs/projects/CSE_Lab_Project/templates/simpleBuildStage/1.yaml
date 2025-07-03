@@ -1,0 +1,43 @@
+template:
+  name: simpleBuildStage
+  identifier: simpleBuildStage
+  versionLabel: "1"
+  type: Stage
+  projectIdentifier: CSE_Lab_Project
+  orgIdentifier: CSE_Labs
+  tags: {}
+  spec:
+    type: CI
+    spec:
+      cloneCodebase: false
+      caching:
+        enabled: false
+        override: false
+        paths: []
+      buildIntelligence:
+        enabled: false
+      infrastructure:
+        type: KubernetesDirect
+        spec:
+          connectorRef: account.testeksconnector
+          namespace: austin-test-ns
+          automountServiceAccountToken: true
+          nodeSelector: {}
+          os: Linux
+      execution:
+        steps:
+          - step:
+              type: Run
+              name: Run_1
+              identifier: Run_1
+              spec:
+                connectorRef: account.AT_Docker
+                image: library/nginx
+                shell: Sh
+                command: echo "Pulled from feature/test-variable branch"
+          - step:
+              name: Run_2
+              identifier: Run_2
+              template:
+                templateRef: simpleRunStepTemplate
+                versionLabel: "1"

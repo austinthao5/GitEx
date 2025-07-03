@@ -9,9 +9,39 @@ template:
   spec:
     stages:
       - stage:
-          name: simpleStage
+          name: simpleStageFromFeatureBranch
           identifier: simpleStage
           tags: {}
           template:
             templateRef: simpleStage
             versionLabel: "1"
+            gitBranch: feature/test-variable
+      - stage:
+          name: build
+          identifier: build
+          description: ""
+          type: CI
+          spec:
+            cloneCodebase: false
+            caching:
+              enabled: true
+              override: false
+            infrastructure:
+              type: KubernetesDirect
+              spec:
+                connectorRef: account.testeksconnector
+                namespace: austin-test-ns
+                automountServiceAccountToken: true
+                nodeSelector: {}
+                os: Linux
+            execution:
+              steps:
+                - step:
+                    type: Run
+                    name: Run_1
+                    identifier: Run_1
+                    spec:
+                      connectorRef: account.AT_Docker
+                      image: library/nginx
+                      shell: Sh
+                      command: echo "hello world"

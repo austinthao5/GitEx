@@ -18,6 +18,6 @@ template:
         spec:
           script: |-
             echo "hello"
-            echo "Pulled from master-copy"
+            echo "Pulled from feature/test-variable"
       environmentVariables: []
       outputVariables: []
