@@ -15,4 +15,3 @@ template:
           template:
             templateRef: simpleStage
             versionLabel: "1"
-            gitBranch: feature/test-variable
