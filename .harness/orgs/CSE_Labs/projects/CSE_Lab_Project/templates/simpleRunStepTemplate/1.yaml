@@ -1,0 +1,15 @@
+template:
+  name: simpleRunStepTemplate
+  identifier: simpleRunStepTemplate
+  versionLabel: "1"
+  type: Step
+  projectIdentifier: CSE_Lab_Project
+  orgIdentifier: CSE_Labs
+  tags: {}
+  spec:
+    type: Run
+    spec:
+      connectorRef: account.AT_Docker
+      image: library/nginx
+      shell: Sh
+      command: echo "Pulled from feature/test-variable"
