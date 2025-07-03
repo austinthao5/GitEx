@@ -15,6 +15,7 @@ template:
           template:
             templateRef: simpleStage
             versionLabel: "1"
+            gitBranch: feature/test-variable
       - stage:
           name: build
           identifier: build
