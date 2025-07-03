@@ -12,4 +12,4 @@ template:
       connectorRef: account.AT_Docker
       image: library/nginx
       shell: Sh
-      command: echo "Pulled from feature/test-variable"
+      command: echo "Pulled from master-copy"
