@@ -22,3 +22,7 @@ template:
             templateRef: simpleStage
             versionLabel: "1"
             gitBranch: feature/test-variable
+      - insert:
+          name: abc
+          identifier: abc
+          stages: <+input>
