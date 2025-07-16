@@ -17,6 +17,19 @@ template:
             versionLabel: "1"
             gitBranch: feature/test-variable
       - stage:
+          name: simpleBuild
+          identifier: simpleBuild
+          template:
+            templateRef: simpleBuildStage
+            versionLabel: "1"
+            templateInputs:
+              type: CI
+              spec:
+                infrastructure:
+                  type: KubernetesDirect
+                  spec:
+                    harnessImageConnectorRef: <+input>
+      - stage:
           name: build
           identifier: build
           description: ""
