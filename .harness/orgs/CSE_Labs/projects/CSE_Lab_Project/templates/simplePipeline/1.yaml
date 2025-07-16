@@ -28,7 +28,7 @@ template:
                 infrastructure:
                   type: KubernetesDirect
                   spec:
-                    harnessImageConnectorRef: <+input>
+                    harnessImageConnectorRef: DockerTestk8
       - stage:
           name: build
           identifier: build
