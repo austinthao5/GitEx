@@ -21,7 +21,7 @@ template:
         spec:
           type: Pool
           spec:
-            poolName: ""
+            poolName: <+input>
             harnessImageConnectorRef: <+input>
             os: Linux
       execution:
