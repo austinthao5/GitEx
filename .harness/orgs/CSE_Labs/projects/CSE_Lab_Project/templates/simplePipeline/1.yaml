@@ -26,11 +26,9 @@ template:
               type: CI
               spec:
                 infrastructure:
-                  type: VM
+                  type: KubernetesDirect
                   spec:
-                    type: Pool
-                    spec:
-                      harnessImageConnectorRef: <+input>
+                    harnessImageConnectorRef: <+input>
       - stage:
           name: build
           identifier: build
