@@ -30,6 +30,7 @@ template:
                   spec:
                     type: Pool
                     spec:
+                      poolName: <+input>
                       harnessImageConnectorRef: <+input>
       - stage:
           name: build
