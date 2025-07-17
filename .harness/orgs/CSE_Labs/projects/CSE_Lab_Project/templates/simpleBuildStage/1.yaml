@@ -17,13 +17,14 @@ template:
       buildIntelligence:
         enabled: false
       infrastructure:
-        type: VM
+        type: KubernetesDirect
         spec:
-          type: Pool
-          spec:
-            poolName: abc
-            harnessImageConnectorRef: <+input>
-            os: Linux
+          connectorRef: account.testeksconnector
+          namespace: austin-test-ns
+          automountServiceAccountToken: true
+          nodeSelector: {}
+          harnessImageConnectorRef: <+input>
+          os: Linux
       execution:
         steps:
           - step:
