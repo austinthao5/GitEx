@@ -28,7 +28,7 @@ template:
                 infrastructure:
                   type: KubernetesDirect
                   spec:
-                    harnessImageConnectorRef: <+input>
+                    harnessImageConnectorRef: artifactorytest
       - stage:
           name: build
           identifier: build
