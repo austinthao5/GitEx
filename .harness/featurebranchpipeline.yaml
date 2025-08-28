@@ -1,0 +1,64 @@
+pipeline:
+  name: feature-branch-pipeline
+  identifier: featurebranchpipeline
+  projectIdentifier: CSE_Lab_Project
+  orgIdentifier: CSE_Labs
+  tags: {}
+  stages:
+    - stage:
+        name: echo
+        identifier: echo
+        description: ""
+        type: Custom
+        spec:
+          execution:
+            steps:
+              - step:
+                  type: ShellScript
+                  name: ShellScript_1
+                  identifier: ShellScript_1
+                  spec:
+                    shell: Bash
+                    executionTarget: {}
+                    source:
+                      type: Inline
+                      spec:
+                        script: echo "hello"
+                    environmentVariables: []
+                    outputVariables: []
+                  timeout: 10m
+        tags: {}
+        variables:
+          - name: var1
+            type: String
+            description: ""
+            required: false
+            value: <+input>
+    - stage:
+        name: a
+        identifier: a
+        tags: {}
+        template:
+          templateRef: GenesisDeploy
+          versionLabel: "2"
+          gitBranch: branch1
+          templateInputs:
+            type: Deployment
+            spec:
+              service:
+                serviceRef: <+input>
+                serviceInputs: <+input>
+              environment:
+                environmentRef: <+input>
+                environmentInputs: <+input>
+                serviceOverrideInputs: <+input>
+                infrastructureDefinitions: <+input>
+            variables:
+              - name: version_fallback
+                type: String
+                value: <+input>
+              - name: jira_id
+                type: String
+                value: <+input>
+            when:
+              condition: <+input>

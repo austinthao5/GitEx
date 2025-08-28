@@ -1,0 +1,15 @@
+inputSet:
+  name: inputSet
+  identifier: inputSet
+  orgIdentifier: CSE_Labs
+  projectIdentifier: CSE_Lab_Project
+  pipeline:
+    identifier: featurebranchtestingpipeline2
+    stages:
+      - stage:
+          identifier: echo
+          type: Custom
+          variables:
+            - name: var1
+              type: String
+              value: "1"
