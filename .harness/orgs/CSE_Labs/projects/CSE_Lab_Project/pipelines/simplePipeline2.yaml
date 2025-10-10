@@ -1,0 +1,9 @@
+pipeline:
+  name: simplePipeline2
+  identifier: simplePipeline2
+  tags: {}
+  template:
+    templateRef: simplePipeline
+    versionLabel: "1"
+  projectIdentifier: CSE_Lab_Project
+  orgIdentifier: CSE_Labs
