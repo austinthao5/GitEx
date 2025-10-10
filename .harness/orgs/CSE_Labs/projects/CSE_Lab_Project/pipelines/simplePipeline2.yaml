@@ -5,5 +5,6 @@ pipeline:
   template:
     templateRef: simplePipeline
     versionLabel: "1"
+    gitBranch: master-copy
   projectIdentifier: CSE_Lab_Project
   orgIdentifier: CSE_Labs
