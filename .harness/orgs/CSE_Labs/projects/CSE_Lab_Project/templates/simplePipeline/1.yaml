@@ -58,3 +58,9 @@ template:
                       image: library/nginx
                       shell: Sh
                       command: echo "hello world"
+          variables:
+            - name: TestVar
+              type: String
+              description: ""
+              required: false
+              value: <+input>
