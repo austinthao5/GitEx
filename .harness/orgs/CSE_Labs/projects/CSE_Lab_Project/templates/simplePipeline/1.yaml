@@ -63,4 +63,4 @@ template:
               type: String
               description: ""
               required: false
-              value: <+input>
+              value: <+pipeline.variables.test>
